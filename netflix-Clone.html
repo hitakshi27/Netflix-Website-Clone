@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix - Stream Unlimited Movies & TV Shows</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #000;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Preloader Animation */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .netflix-logo {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            animation: netflixIntro 2s ease-in-out forwards;
+        }
+
+        .netflix-logo::before,
+        .netflix-logo::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 100px;
+            height: 100%;
+            background: #e50914;
+        }
+
+        .netflix-logo::before {
+            left: 0;
+            transform: skewX(19.6deg) scale(1, 1.2);
+            box-shadow: 0 0 50px rgba(229, 9, 20, 0.8);
+        }
+
+        .netflix-logo::after {
+            right: 0;
+            transform: skewX(-19.6deg) scale(1, 1.2);
+            box-shadow: 0 0 50px rgba(229, 9, 20, 0.8);
+        }
+
+        .logo-text {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e50914;
+            opacity: 0;
+            animation: fadeInText 1s ease-in-out 1.5s forwards;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            padding: 20px 0;
+            opacity: 0;
+            animation: fadeInHeader 1s ease-in-out 3s forwards;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: #e50914;
+            font-size: 2rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #e50914;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 80vh;
+            background: linear-gradient(to right, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%), url('https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f9c8d678-0155-44dc-ac8f-5421422b0ec6.png') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeInHero 1s ease-in-out 3.5s forwards;
+        }
+
+        .hero-content {
+            max-width: 600px;
+            padding: 0 20px;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transform: translateY(50px);
+            opacity: 0;
+            animation: slideInTitle 1s ease-in-out 4s forwards;
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideInDesc 1s ease-in-out 4.2s forwards;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            opacity: 0;
+            animation: fadeInButtons 1s ease-in-out 4.4s forwards;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #e50914;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Content Sections */
+        .content-section {
+            margin-bottom: 50px;
+            opacity: 0;
+            animation: fadeInContent 1s ease-in-out forwards;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .movie-card {
+            background: #181818;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            transform: scale(0.95);
+            opacity: 0;
+            animation: scaleInCard 0.6s ease-in-out forwards;
+        }
+
+        .movie-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .movie-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .movie-card:hover .movie-image {
+            transform: scale(1.1);
+        }
+
+        .movie-info {
+            padding: 15px;
+        }
+
+        .movie-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .movie-year {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #000;
+            padding: 40px 0;
+            margin-top: 60px;
+            opacity: 0;
+            animation: fadeInFooter 1s ease-in-out 5s forwards;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+
+        .footer-column h3 {
+            color: #e50914;
+            margin-bottom: 15px;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-column ul li a:hover {
+            color: #e50914;
+        }
+
+        .copyright {
+            margin-top: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Sound Button */
+        .sound-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(229, 9, 20, 0.8);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1001;
+            opacity: 0;
+            animation: fadeInSoundBtn 1s ease-in-out 3s forwards;
+        }
+
+        .sound-toggle:hover {
+            background: #e50914;
+        }
+
+        /* Animations */
+        @keyframes netflixIntro {
+            0% {
+                transform: scale(0.1);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInText {
+            0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        @keyframes fadeInHeader {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes fadeInHero {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes slideInTitle {
+            0% { opacity: 0; transform: translateY(50px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInDesc {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 0.9; transform: translateY(0); }
+        }
+
+        @keyframes fadeInButtons {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes fadeInContent {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleInCard {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeInFooter {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes fadeInSoundBtn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .netflix-logo {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .netflix-logo::before,
+            .netflix-logo::after {
+                width: 66px;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-description {
+                font-size: 1rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .movie-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .netflix-logo {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .netflix-logo::before,
+            .netflix-logo::after {
+                width: 50px;
+            }
+            
+            .hero-title {
+                font-size: 1.5rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader Animation -->
+    <div class="preloader" id="preloader">
+        <div class="netflix-logo">
+            <div class="logo-text">NETFLIX</div>
+        </div>
+    </div>
+
+    <!-- Sound Toggle Button -->
+    <button class="sound-toggle" id="soundToggle" title="Toggle Sound">
+        🔊
+    </button>
+
+    <!-- Header -->
+    <header>
+        <div class="container nav-container">
+            <a href="#" class="logo">NETFLIX</a>
+            <nav class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">TV Shows</a>
+                <a href="#">Movies</a>
+                <a href="#">New & Popular</a>
+                <a href="#">My List</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Stranger Things</h1>
+                <p class="hero-description">When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces, and one strange little girl.</p>
+                <div class="cta-buttons">
+                    <button class="btn btn-primary">▶ Play</button>
+                    <button class="btn btn-secondary">+ My List</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Sections -->
+    <main class="container">
+        <!-- Trending Now -->
+        <section class="content-section" style="animation-delay: 4.6s;">
+            <h2 class="section-title">Trending Now</h2>
+            <div class="movie-grid">
+                <div class="movie-card" style="animation-delay: 4.8s;">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/962c8605-cbf5-4e0d-bbcd-cfdb35898802.png" alt="The Witcher series poster featuring monster hunter Geralt of Rivia in dark fantasy setting with silver sword and monster hunting gear" class="movie-image">
+                    <div class="movie-info">
+                        <h3 class="movie-title">The Witcher</h3>
+                        <p class="movie-year">2019</p>
+                    </div>
+                </div>
+                <div class="movie-card" style="animation-delay: 4.9s;">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/06eedceb-82cb-489c-af92-ae73e58d9315.png" alt="Squid Game intense competition scene with players in green tracksuits facing deadly challenges in colorful arenas" class="movie-image">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Squid Game</h3>
+                        <p class="movie-year">2021</p>
+                    </div>
+                </div>
+                <div class="movie-card" style="animation-delay: 5.0s;">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3ec500ea-2dbc-438c-8209-53ed5fcc6c60.png" alt="The Crown royal drama series featuring British monarchy historical events with elaborate costumes and palace settings" class="movie-image">
+                    <div class="movie-info">
+                        <h3 class="movie-title">The Crown</h3>
+                        <p class="movie-year">2016</p>
+                    </div>
+                </div>
+                <div class="movie-card" style="animation-delay: 5.1s;">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/2cc4e3e5-248d-4ac3-84b7-162844098579.png" alt="Money Heist iconic red jumpsuit and Salvador Dalí mask scene with intense bank robbery action sequence" class="movie-image">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Money Heist</h3>
+                        <p class="movie-year">2017</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Popular on Netflix -->
+        <section class="content-section" style="animation-delay: 5.2s;">
+            <h2 class="section-title">Popular on Netflix</h2>
+            <div class="movie-grid">
+                <div class="movie-card" style="animation-delay: 5.3s;">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/efcb696e-e2a6-4404-8166-922662ff6d91.png" alt="Breaking Bad intense chemistry lab scene with Walter White and Jesse Pinkman cooking blue meth in RV" class="movie-image">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Breaking Bad</h3>
+                        <p class="movie-year">2008</p>
+                    </div>
+                </div>
+                <div class="movie-card" style="animation-delay: 5.4s;">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/b563f450-b5f9-4e32-ab60-c2d2e19a968b.png" alt="Narcos dramatic drug cartel scene with Pablo Escobar and DEA agents in Colombian jungle setting" class="movie-image">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Narcos</h3>
+                        <p class="movie-year">2015</p>
+                    </div>
+                </div>
+                <div class="movie-card" style="animation-delay: 5.5s;">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/17174839-77e4-49f5-a344-c08e58c674ca.png" alt="Dark mysterious German sci-fi series with time travel elements and forest setting with cave portal" class="movie-image">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Dark</h3>
+                        <p class="movie-year">2017</p>
+                    </div>
+                </div>
+                <div class="movie-card" style="animation-delay: 5.6s;">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/2735ae70-8c31-4cb5-8d6c-3398a6a68463.png" alt="The Queen's Gambit intense chess competition scene with young female prodigy in 1960s setting" class="movie-image">
+                    <div class="movie-info">
+                        <h3 class="movie-title">The Queen's Gambit</h3>
+                        <p class="movie-year">2020</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Releases -->
+        <section class="content-section" style="animation-delay: 5.7s;">
+            <h2 class="section-title">New Releases</h2>
+            <div class="movie-grid">
+                <div class="movie-card" style="animation-delay: 5.8s;">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f9c46a5e-32e7-49d1-a7c3-c589a990d500.png" alt="Wednesday Addams supernatural mystery series at Nevermore Academy with gothic architecture" class="movie-image">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Wednesday</h3>
+                        <p class="movie-year">2022</p>
+                    </div>
+                </div>
+                <div class="movie-card" style="animation-delay: 5.9s;">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/c12439d1-9b51-4bc1-9e1e-9db7509e289d.png" alt="1899 mysterious ocean liner thriller with international cast and steampunk aesthetic" class="movie-image">
+                    <div class="movie-info">
+                        <h3 class="movie-title">1899</h3>
+                        <p class="movie-year">2022</p>
+                    </div>
+                </div>
+                <div class="movie-card" style="animation-delay: 6.0s;">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/273880cd-7278-43ab-bda8-3ef143dc3416.png" alt="The Sandman dark fantasy series based on Neil Gaiman's comic books with dreamlike visuals" class="movie-image">
+                    <div class="movie-info">
+                        <h3 class="movie-title">The Sandman</h3>
+                        <p class="movie-year">2022</p>
+                    </div>
+                </div>
+                <div class="movie-card" style="animation-delay: 6.1s;">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/32d82b34-2d1e-482c-8c7a-b72c242378a0.png" alt="Dahmer true crime series about serial killer Jeffrey Dahmer with 1970s period setting" class="movie-image">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Dahmer</h3>
+                        <p class="movie-year">2022</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Netflix</h3>
+                    <ul>
+                        <li><a href="#">Jobs</a></li>
+                        <li><a href="#">Ways to Watch</a></li>
+                        <li><a href="#">Terms of Use</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Help Center</h3>
+                    <ul>
+                        <li><a href="#">Account</a></li>
+                        <li><a href="#">Media Center</a></li>
+                        <li><a href="#">Redeem Gift Cards</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="#">Privacy</a></li>
+                        <li><a href="#">Cookie Preferences</a></li>
+                        <li><a href="#">Corporate Information</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><a href="#">Support</a></li>
+                        <li><a href="#">Feedback</a></li>
+                        <li><a href="#">Accessibility</a></li>
+                    </ul>
+                </div>
+            </div>
+            <p class="copyright">© 2024 Netflix Clone. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const preloader = document.getElementById('preloader');
+            const soundToggle = document.getElementById('soundToggle');
+            let soundEnabled = false;
+            let audioContext = null;
+            let oscillator = null;
+
+            // Create Netflix intro sound
+            function createNetflixSound() {
+                try {
+                    // Create audio context
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    // Configure sound
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.5);
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    // Play sound
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.8);
+                    
+                } catch (error) {
+                    console.log('Audio not supported or requires user interaction');
+                }
+            }
+
+            // Toggle sound function
+            function toggleSound() {
+                soundEnabled = !soundEnabled;
+                soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+                
+                if (soundEnabled) {
+                    createNetflixSound();
+                }
+            }
+
+            // Sound toggle event
+            soundToggle.addEventListener('click', toggleSound);
+
+            // Auto-hide preloader after animation
+            setTimeout(() => {
+                preloader.style.opacity = '0';
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                    
+                    // Play sound automatically when preloader hides (if enabled)
+                    if (soundEnabled) {
+                        createNetflixSound();
+                    }
+                }, 500);
+            }, 2500);
+
+            // Play button click with sound
+            document.querySelector('.btn-primary').addEventListener('click', function() {
+                if (soundEnabled) {
+                    // Create a different sound for play button
+                    try {
+                        const playContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const playOscillator = playContext.createOscillator();
+                        const playGain = playContext.createGain();
+                        
+                        playOscillator.type = 'triangle';
+                        playOscillator.frequency.setValueAtTime(523.25, playContext.currentTime); // C5
+                        playOscillator.frequency.exponentialRampToValueAtTime(659.25, playContext.currentTime + 0.2); // E5
+                        
+                        playGain.gain.setValueAtTime(0.3, playContext.currentTime);
+                        playGain.gain.exponentialRampToValueAtTime(0.01, playContext.currentTime + 0.3);
+                        
+                        playOscillator.connect(playGain);
+                        playGain.connect(playContext.destination);
+                        
+                        playOscillator.start();
+                        playOscillator.stop(playContext.currentTime + 0.3);
+                    } catch (error) {
+                        console.log('Play sound error');
+                    }
+                }
+                alert('🎬 Playing Stranger Things...');
+            });
+
+            // My List button click with sound
+            document.querySelector('.btn-secondary').addEventListener('click', function() {
+                if (soundEnabled) {
+                    try {
+                        const listContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const listOscillator = listContext.createOscillator();
+                        const listGain = listContext.createGain();
+                        
+                        listOscillator.type = 'sine';
+                        listOscillator.frequency.setValueAtTime(392, listContext.currentTime); // G4
+                        listOscillator.frequency.exponentialRampToValueAtTime(523.25, listContext.currentTime + 0.1); // C5
+                        
+                        listGain.gain.setValueAtTime(0.2, listContext.currentTime);
+                        listGain.gain.exponentialRampToValueAtTime(0.01, listContext.currentTime + 0.2);
+                        
+                        listOscillator.connect(listGain);
+                        listGain.connect(listContext.destination);
+                        
+                        listOscillator.start();
+                        listOscillator.stop(listContext.currentTime + 0.2);
+                    } catch (error) {
+                        console.log('List sound error');
+                    }
+                }
+                alert('➕ Added to My List!');
+            });
+
+            // Movie card hover effects
+            const movieCards = document.querySelectorAll('.movie-card');
+            movieCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    if (soundEnabled) {
+                        try {
+                            const hoverContext = new (window.AudioContext || window.webkitAudioContext)();
+                            const hoverOscillator = hoverContext.createOscillator();
+                            const hoverGain = hoverContext.createGain();
+                            
+                            hoverOscillator.type = 'sine';
+                            hoverOscillator.frequency.setValueAtTime(1000, hoverContext.currentTime);
+                            hoverOscillator.frequency.exponentialRampToValueAtTime(1200, hoverContext.currentTime + 0.1);
+                            
+                            hoverGain.gain.setValueAtTime(0.05, hoverContext.currentTime);
+                            hoverGain.gain.exponentialRampToValueAtTime(0.01, hoverContext.currentTime + 0.1);
+                            
+                            hoverOscillator.connect(hoverGain);
+                            hoverGain.connect(hoverContext.destination);
+                            
+                            hoverOscillator.start();
+                            hoverOscillator.stop(hoverContext.currentTime + 0.1);
+                        } catch (error) {
+                            console.log('Hover sound error');
+                        }
+                    }
+                });
+            });
+
+            // Enable audio on first user interaction (required for autoplay)
+            function enableAudioOnInteraction() {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    // Resume audio context if it was suspended
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                }
+            }
+
+            // Add event listeners for user interaction
+            document.addEventListener('click', enableAudioOnInteraction);
+            document.addEventListener('touchstart', enableAudioOnInteraction);
+            document.addEventListener('keydown', enableAudioOnInteraction);
+        });
+    </script>
+</body>
+</html>
